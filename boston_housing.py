@@ -16,7 +16,7 @@
 # 
 # Let's start by setting up some code we will need to get the rest of the project up and running. Use the keyboard shortcut mentioned above on the following code block to execute it. Alternatively, depending on your iPython Notebook program, you can press the **Play** button in the hotbar. You'll know the code block executes successfully if the message *"Boston Housing dataset loaded successfully!"* is printed.
 
-# In[2]:
+# In[1]:
 
 # Importing a few necessary libraries
 import numpy as np
@@ -46,7 +46,7 @@ print "Boston Housing dataset loaded successfully!"
 # ##Step 1
 # In the code block below, use the imported `numpy` library to calculate the requested statistics. You will need to replace each `None` you find with the appropriate `numpy` coding for the proper statistic to be printed. Be sure to execute the code block each time to test if your implementation is working successfully. The print statements will show the statistics you calculate!
 
-# In[4]:
+# In[2]:
 
 # Number of houses in the dataset
 total_houses = len(housing_prices)
@@ -93,7 +93,7 @@ print "Standard deviation of house price: {0:.3f}".format(std_dev)
 # *Using your client's feature set `CLIENT_FEATURES`, which values correspond with the features you've chosen above?*  
 # **Hint: ** Run the code block below to see the client's data.
 
-# In[5]:
+# In[3]:
 
 print CLIENT_FEATURES
 
@@ -111,7 +111,7 @@ print CLIENT_FEATURES
 # If you use any functions not already acessible from the imported libraries above, remember to include your import statement below as well!  
 # Ensure that you have executed the code block once you are done. You'll know if the `shuffle_split_data` function is working if the statement *"Successfully shuffled and split the data!"* is printed.
 
-# In[8]:
+# In[4]:
 
 # Put any import statements you need for this code block here
 from sklearn.cross_validation import train_test_split
@@ -148,7 +148,7 @@ except:
 # Once you have determined which metric you will use, remember to include the necessary import statement as well!  
 # Ensure that you have executed the code block once you are done. You'll know if the `performance_metric` function is working if the statement *"Successfully performed a metric calculation!"* is printed.
 
-# In[10]:
+# In[5]:
 
 # Put any import statements you need for this code block here
 from sklearn.metrics import mean_squared_error
@@ -177,7 +177,7 @@ except:
 # - *Mean Squared Error (MSE)*
 # - *Mean Absolute Error (MAE)*
 
-# **Answer: ** Mean Squared Error because for regression problem this is the most appropriate
+# **Answer: ** Accuracy, Precision, Recall and F1 Score are usually used in classification problems to identify fraction of correctly identified labels. In case of regression we need a measure of how far the predicted values are off from actual values. Both MSE and MAE calculate positive error between actual and predicted values. But MSE gives more weigh to outliers compared to MAE and hense for regression problem Mean Squared Error (MSE)is the most appropriate performance metric.
 
 # ##Step 4 (Final Step)
 # In the code block below, you will need to implement code so that the `fit_model` function does the following:
@@ -189,12 +189,12 @@ except:
 # Since you are using `sklearn` functions, remember to include the necessary import statements below as well!  
 # Ensure that you have executed the code block once you are done. You'll know if the `fit_model` function is working if the statement *"Successfully fit a model to the data!"* is printed.
 
-# In[17]:
+# In[20]:
 
 # Put any import statements you need for this code block
-from sklearn.cross_validation import cross_val_score
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.grid_search import GridSearchCV
-from sklearn.svm import LinearSVC
+from sklearn.metrics import make_scorer
 
 def fit_model(X, y):
     """ Tunes a decision tree regressor model using GridSearchCV on the input data X 
@@ -207,11 +207,10 @@ def fit_model(X, y):
     parameters = {'max_depth':(1,2,3,4,5,6,7,8,9,10)}
 
     # Make an appropriate scoring function
-    scoring_function = make_scorer(total_error, greater_is_better=False)
+    scoring_function = make_scorer(performance_metric, greater_is_better=False)
 
     # Make the GridSearchCV object
-    reg = GridSearchCV(regressor, parameters, cv=3, scoring='mean_absolute_error')
-
+    reg = GridSearchCV(regressor, parameters, scoring=scoring_function, verbose=1)
 
     # Fit the learner to the data to obtain the optimal model with tuned parameters
     reg.fit(X, y)
@@ -231,17 +230,17 @@ except:
 # ##Question 5
 # *What is the grid search algorithm and when is it applicable?*
 
-# **Answer: ** Grid Search algorithm performs hyperparameter optimization to optimize model using the training and testing set data.
+# **Answer: ** Grid Search algorithm is a way to perform hyperparameter optimization to optimize a model using cross validation. It searches through hyper parameter space specified to evaluate the model against performance criteria to find the best fit model.
 
 # ##Question 6
 # *What is cross-validation, and how is it performed on a model? Why would cross-validation be helpful when using grid search?*
 
-# **Answer: ** cross validation is the process of evaluating model trained on training data against testing data set. Cross validation helps minimize error and selct the most optimal model for prediction.
+# **Answer: ** cross validation is the process of evaluating model trained on training data against testing data set to check for overfitting or bias. Cross validation helps minimize error and selct the most optimal model for prediction. In cross validation process data is split into 3 or more folds of data set to be used as training, testing and validation, where a machine learning model is created using training data and then predictions are made on testing data and its performance is evaluated using a loss function and then similar evaluation is done against other validation data sets. Eventually the model with least error is selected. More number of folds helps generalize the model better. Reducing the number of folds to 1 could cause overfitting.
 
 # #Checkpoint!
 # You have now successfully completed your last code implementation section. Pat yourself on the back! All of your functions written above will be executed in the remaining sections below, and questions will be asked about various results for you to analyze. To prepare the **Analysis** and **Prediction** sections, you will need to intialize the two functions below. Remember, there's no need to implement any more code, so sit back and execute the code blocks! Some code comments are provided if you find yourself interested in the functionality.
 
-# In[18]:
+# In[21]:
 
 def learning_curves(X_train, y_train, X_test, y_test):
     """ Calculates the performance of several models with varying sizes of training data.
@@ -290,7 +289,7 @@ def learning_curves(X_train, y_train, X_test, y_test):
     fig.show()
 
 
-# In[19]:
+# In[22]:
 
 def model_complexity(X_train, y_train, X_test, y_test):
     """ Calculates the performance of the model as model complexity increases.
@@ -330,7 +329,7 @@ def model_complexity(X_train, y_train, X_test, y_test):
 # #Analyzing Model Performance
 # In this third section of the project, you'll take a look at several models' learning and testing error rates on various subsets of training data. Additionally, you'll investigate one particular algorithm with an increasing `max_depth` parameter on the full training set to observe how model complexity affects learning and testing errors. Graphing your model's performance based on varying criteria can be beneficial in the analysis process, such as visualizing behavior that may not have been apparent from the results alone.
 
-# In[20]:
+# In[23]:
 
 learning_curves(X_train, y_train, X_test, y_test)
 
@@ -338,14 +337,14 @@ learning_curves(X_train, y_train, X_test, y_test)
 # ##Question 7
 # *Choose one of the learning curve graphs that are created above. What is the max depth for the chosen model? As the size of the training set increases, what happens to the training error? What happens to the testing error?*
 
-# **Answer: ** for max_depth = 6 as the size of training data set increases training and testing error converge.
+# **Answer: ** I pick max_depth = 6. Training error remians almost 0 while training data increases from 0 to 100 and then it increseas slightly with almost linear increase to around 5 when training data reaches 350. The testing error starts from 130 and decreases to 30 when training data point reaches 50 and after that it gradually decreases to 10 when training data reaches 350 with minor spikes along the way.
 
 # ##Question 8
 # *Look at the learning curve graphs for the model with a max depth of 1 and a max depth of 10. When the model is using the full training set, does it suffer from high bias or high variance when the max depth is 1? What about when the max depth is 10?*
 
-# **Answer: ** for max depth 1 the model suffers from high variance and for max depth 10 it suffers from high bias.
+# **Answer: ** for max depth 1 the model suffers from high bias, the model is over simplified, leading to quick convergence of training and testing error. For max depth 10 it suffers from high variance. The model is overfitting to training data, but does not generalize to testing data.
 
-# In[21]:
+# In[24]:
 
 model_complexity(X_train, y_train, X_test, y_test)
 
@@ -353,7 +352,7 @@ model_complexity(X_train, y_train, X_test, y_test)
 # ##Question 9
 # *From the model complexity graph above, describe the training and testing errors as the max depth increases. Based on your interpretation of the graph, which max depth results in a model that best generalizes the dataset? Why?*
 
-# **Answer: ** As the max depth increases training error decreases, but testing error increases. Max depth 3 is the highest max depth where training and testing error overlap. So at max depth 3, the model generalizes well.
+# **Answer: ** As the max depth increases training error decreases and testing error decreases till 30 and then remains almost flat with a small spike around 11. Max depth 5 is the highest max depth where training and testing error are almost close to 10. So at max depth 5, the model generalizes well.
 
 # #Model Prediction
 # In this final section of the project, you will make a prediction on the client's feature set using an optimized model from `fit_model`. *To answer the following questions, it is recommended that you run the code blocks several times and use the median or mean value of the results.*
@@ -362,25 +361,25 @@ model_complexity(X_train, y_train, X_test, y_test)
 # *Using grid search on the entire dataset, what is the optimal `max_depth` parameter for your model? How does this result compare to your intial intuition?*  
 # **Hint: ** Run the code block below to see the max depth produced by your optimized model.
 
-# In[22]:
+# In[25]:
 
 print "Final model optimal parameters:", reg.best_params_
 
 
-# **Answer: ** My intution was less than the optimized model max depth.
+# **Answer: ** My intution was more than the optimized model max depth.
 
 # ##Question 11
 # *With your parameter-tuned model, what is the best selling price for your client's home? How does this selling price compare to the basic statistics you calculated on the dataset?*  
 # 
 # **Hint: ** Run the code block below to have your parameter-tuned model make a prediction on the client's home.
 
-# In[23]:
+# In[26]:
 
 sale_price = reg.predict(CLIENT_FEATURES)
 print "Predicted value of client's home: {0:.3f}".format(sale_price[0])
 
 
-# **Answer: ** $207660
+# **Answer: ** $21630
 
 # ##Question 12 (Final Question):
 # *In a few sentences, discuss whether you would use this model or not to predict the selling price of future clients' homes in the Greater Boston area.*
