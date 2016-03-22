@@ -52,7 +52,7 @@ print "Boston Housing dataset loaded successfully!"
 total_houses = len(housing_prices)
 
 # Number of features in the dataset
-total_features = len(housing_features)
+total_features = len(housing_features[0])
 
 # Minimum housing value in the dataset
 minimum_price = np.amin(housing_prices)
@@ -189,7 +189,7 @@ except:
 # Since you are using `sklearn` functions, remember to include the necessary import statements below as well!  
 # Ensure that you have executed the code block once you are done. You'll know if the `fit_model` function is working if the statement *"Successfully fit a model to the data!"* is printed.
 
-# In[20]:
+# In[6]:
 
 # Put any import statements you need for this code block
 from sklearn.tree import DecisionTreeRegressor
@@ -235,7 +235,7 @@ except:
 # ##Question 6
 # *What is cross-validation, and how is it performed on a model? Why would cross-validation be helpful when using grid search?*
 
-# **Answer: ** cross validation is the process of evaluating model trained on training data against testing data set to check for overfitting or bias. Cross validation helps minimize error and selct the most optimal model for prediction. In cross validation process data is split into 3 or more folds of data set to be used as training, testing and validation, where a machine learning model is created using training data and then predictions are made on testing data and its performance is evaluated using a loss function and then similar evaluation is done against other validation data sets. Eventually the model with least error is selected. More number of folds helps generalize the model better. Reducing the number of folds to 1 could cause overfitting.
+# **Answer: ** cross validation is the process of evaluating model trained on training data against testing data set to check for overfitting or bias. Cross validation helps minimize error and selct the most optimal model for prediction. In cross validation process data is split into 3 or more folds of data set to be used as training, testing and validation, where a machine learning model is created using training data and then predictions are made on testing data and its performance is evaluated using a loss function and then similar evaluation is done against other validation data sets. Eventually the model with least error is selected. More number of folds helps generalize the model better. Reducing the number of folds to 1 could cause overfitting. Grid Search algorithm takes a parameter set as input. It scans through the parameter and for each parameter combination creates a model and runs cross validation to evaluate the model performance. At the end it outputs the model that has the best performance from cross validation process.
 
 # #Checkpoint!
 # You have now successfully completed your last code implementation section. Pat yourself on the back! All of your functions written above will be executed in the remaining sections below, and questions will be asked about various results for you to analyze. To prepare the **Analysis** and **Prediction** sections, you will need to intialize the two functions below. Remember, there's no need to implement any more code, so sit back and execute the code blocks! Some code comments are provided if you find yourself interested in the functionality.
@@ -352,7 +352,7 @@ model_complexity(X_train, y_train, X_test, y_test)
 # ##Question 9
 # *From the model complexity graph above, describe the training and testing errors as the max depth increases. Based on your interpretation of the graph, which max depth results in a model that best generalizes the dataset? Why?*
 
-# **Answer: ** As the max depth increases training error decreases and testing error decreases till 30 and then remains almost flat with a small spike around 11. Max depth 5 is the highest max depth where training and testing error are almost close to 10. So at max depth 5, the model generalizes well.
+# **Answer: ** As the max depth increases training error decreases. This means as model complexity increses there is more overfitting of training data. Testing error decreses to around 15 when max depth reaches around 5 and after that it remains flat around 15. This means upto max depth 5, the model generalizes to testing data, but beyond max depth 5, the model is overfitting to training data, but not generalizing to testing data. So I think max depth 5 best generalizes the dataset.
 
 # #Model Prediction
 # In this final section of the project, you will make a prediction on the client's feature set using an optimized model from `fit_model`. *To answer the following questions, it is recommended that you run the code blocks several times and use the median or mean value of the results.*
