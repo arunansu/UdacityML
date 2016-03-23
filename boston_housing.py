@@ -379,7 +379,7 @@ sale_price = reg.predict(CLIENT_FEATURES)
 print "Predicted value of client's home: {0:.3f}".format(sale_price[0])
 
 
-# **Answer: ** $21630
+# ** Answer: ** Predicted value of client's home is 21.630. This seems reasonable considering the mean house price is 22.533 and median house price is 21.200. The predicted house price is within the standard deviation 9.188 from the mean 22.533 
 
 # ##Question 12 (Final Question):
 # *In a few sentences, discuss whether you would use this model or not to predict the selling price of future clients' homes in the Greater Boston area.*
