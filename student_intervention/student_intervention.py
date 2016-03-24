@@ -8,6 +8,8 @@
 # 
 # Your goal is to identify students who might need early intervention - which type of supervised machine learning problem is this, classification or regression? Why?
 
+# ** Answer ** This is a classification supervised learning problem. Because we are trying to predict whether students are likely to pass or not. So this is a binary classification problem.
+
 # ## 2. Exploring the Data
 # 
 # Let's go ahead and read in the student dataset first.
@@ -42,7 +44,7 @@ print "Student data read successfully!"
 
 # TODO: Compute desired values - replace each '?' with an appropriate expression/function call
 n_students = len(student_data)
-n_features = len(student_data.columns)
+n_features = len(student_data.columns) - 1
 n_passed = len(student_data[student_data['passed'] == 'yes'])
 n_failed = len(student_data[student_data['passed'] == 'no'])
 grad_rate = float(n_passed)/float(n_students) * 100.0
@@ -113,17 +115,17 @@ print "Processed feature columns ({}):-\n{}".format(len(X_all.columns), list(X_a
 # 
 # So far, we have converted all _categorical_ features into numeric values. In this next step, we split the data (both features and corresponding labels) into training and test sets.
 
-# In[6]:
+# In[27]:
 
 # First, decide how many training vs test samples you want
 num_all = student_data.shape[0]  # same as len(student_data)
-num_train = 296  # about 75% of the data
+num_train = 300  # about 75% of the data
 num_test = num_all - num_train
 
 # TODO: Then, select features (X) and corresponding labels (y) for the training and test sets
 # Note: Shuffle the data or randomly select samples to avoid any bias due to ordering in the dataset
 from sklearn.cross_validation import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=95, train_size=300, random_state=42)
 print "Training set: {} samples".format(X_train.shape[0])
 print "Test set: {} samples".format(X_test.shape[0])
 # Note: If you need a validation set, extract it from within training data
@@ -140,7 +142,89 @@ print "Test set: {} samples".format(X_test.shape[0])
 # 
 # Note: You need to produce 3 such tables - one for each model.
 
-# In[7]:
+# ** Answer ** The 3 supervised learning models I choose are
+# 1. Logistic Regression 
+# 2. Support Vector Machine
+# 3. Gaussian Naive Bayes
+# 
+# Logistic regression converts the dependant variable from a classification type to a probability and then uses linear regression to predict the probability of the dependant variable. Eventually a threshold is used to convert the probability of dependant variable to a classfication variable by using the logic if the probability is above threshold then true otherwise false. Logistic regression can be used to solve binary classification problem. Its strength is that it can give probability of the dependant variable, so we can have a measure of likelihood of the dependant variable. Its weakness is that given a threshold, it will not be able to determine class of some dependant variable that are equal to the threshold. Since in the current data we are tryying to predict pass or no pass for a student, which is a binary classification, logistic regression fits really well.
+# 
+# Support Vector Machine models the features as points in space and tries to form boundary lines between different classes of variables, thus separating each class of features into different planes. Its strength is in dividing features that have a clear separation. It can quickly separate different classes of features when they distinctively apart. Its weakness is that it fails in situation when points are uniformly distributed. Since the current data can be divided into two classes, support vector machine can separate them into two planes.
+# 
+# Gaussian Naive Bayes gives weight to each feature depending on how it relates to the label and then uses the weighted sum of features as a model to calculate the dependant variable. Naive bayes can be simple and fast when feature don't have interdependency. But its weakness is when two features depend on each other, it would put stronger weight on those features and hence will be biased. Also naive bayes can not optimize as well as logistic regression. Since the current data has features independent of each other, naive byes can be used.
+# 
+# Model Training and Prediction results:
+# 
+# Model: Logistic Regression
+# 
+# Training Size: 100  
+# Training Time(s): 0.004  
+# Training Prediction Time(s): 0.000    
+# Training F1: 0.910
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.708
+# 
+# Training Size: 200  
+# Training Time(s): 0.003  
+# Training Prediction Time(s): 0.001    
+# Training F1: 0.842
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.788
+# 
+# Training Size: 300  
+# Training Time(s): 0.007  
+# Training Prediction Time(s): 0.000    
+# Training F1: 0.843
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.782
+# 
+# Model: Support Vector Machine
+# 
+# Training Size: 100  
+# Training Time(s): 0.003  
+# Training Prediction Time(s): 0.001    
+# Training F1: 0.877
+# Testing Prediction Time(s): 0.001  
+# Testing F1: 0.774
+# 
+# Training Size: 200  
+# Training Time(s): 0.005  
+# Training Prediction Time(s): 0.003    
+# Training F1: 0.868
+# Testing Prediction Time(s): 0.001  
+# Testing F1: 0.781
+# 
+# Training Size: 300  
+# Training Time(s): 0.010  
+# Training Prediction Time(s): 0.007    
+# Training F1: 0.876
+# Testing Prediction Time(s): 0.002  
+# Testing F1: 0.784
+# 
+# Model: Gaussian Naive Bayes
+# 
+# Training Size: 100  
+# Training Time(s): 0.000  
+# Training Prediction Time(s): 0.001    
+# Training F1: 0.846
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.803
+# 
+# Training Size: 200  
+# Training Time(s): 0.001  
+# Training Prediction Time(s): 0.000    
+# Training F1: 0.840
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.724
+# 
+# Training Size: 300  
+# Training Time(s): 0.001  
+# Training Prediction Time(s): 0.001    
+# Training F1: 0.804
+# Testing Prediction Time(s): 0.000  
+# Testing F1: 0.763
+
+# In[28]:
 
 # Train a model
 import time
@@ -161,7 +245,7 @@ train_classifier(clf, X_train, y_train)  # note: using entire training set here
 #print clf  # you can inspect the learned model by printing it
 
 
-# In[8]:
+# In[29]:
 
 # Predict on training set and compute F1 score
 from sklearn.metrics import f1_score
@@ -178,16 +262,15 @@ train_f1_score = predict_labels(clf, X_train, y_train)
 print "F1 score for training set: {}".format(train_f1_score)
 
 
-# In[9]:
+# In[30]:
 
 # Predict on test data
 print "F1 score for test set: {}".format(predict_labels(clf, X_test, y_test))
 
 
-# In[14]:
+# In[31]:
 
 # Train and predict using different training set sizes
-X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.25, random_state=42)
 def train_predict(clf, X_train, y_train, X_test, y_test):
     print "------------------------------------------"
     print "Training set size: {}".format(len(X_train))
@@ -200,10 +283,9 @@ train_predict(clf, X_train, y_train, X_test, y_test)
 # Note: Keep the test set constant
 
 
-# In[13]:
+# In[32]:
 
 # TODO: Train and predict using two other models
-X_train, X_test, y_train, y_test = train_test_split(X_all, y_all, test_size=0.5, random_state=42)
 
 from sklearn import svm
 clf = svm.SVC()
