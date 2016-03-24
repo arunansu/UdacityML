@@ -8,8 +8,6 @@
 # 
 # Your goal is to identify students who might need early intervention - which type of supervised machine learning problem is this, classification or regression? Why?
 
-# ** Answer ** This is a classification supervised learning problem. Because we are trying to predict whether students are likely to pass or not. So this is a binary classification problem.
-
 # ## 2. Exploring the Data
 # 
 # Let's go ahead and read in the student dataset first.
@@ -142,88 +140,6 @@ print "Test set: {} samples".format(X_test.shape[0])
 # 
 # Note: You need to produce 3 such tables - one for each model.
 
-# ** Answer ** The 3 supervised learning models I choose are
-# 1. Logistic Regression 
-# 2. Support Vector Machine
-# 3. Gaussian Naive Bayes
-# 
-# Logistic regression converts the dependant variable from a classification type to a probability and then uses linear regression to predict the probability of the dependant variable. Eventually a threshold is used to convert the probability of dependant variable to a classfication variable by using the logic if the probability is above threshold then true otherwise false. Logistic regression can be used to solve binary classification problem. Its strength is that it can give probability of the dependant variable, so we can have a measure of likelihood of the dependant variable. Its weakness is that given a threshold, it will not be able to determine class of some dependant variable that are equal to the threshold. Since in the current data we are tryying to predict pass or no pass for a student, which is a binary classification, logistic regression fits really well.
-# 
-# Support Vector Machine models the features as points in space and tries to form boundary lines between different classes of variables, thus separating each class of features into different planes. Its strength is in dividing features that have a clear separation. It can quickly separate different classes of features when they distinctively apart. Its weakness is that it fails in situation when points are uniformly distributed. Since the current data can be divided into two classes, support vector machine can separate them into two planes.
-# 
-# Gaussian Naive Bayes gives weight to each feature depending on how it relates to the label and then uses the weighted sum of features as a model to calculate the dependant variable. Naive bayes can be simple and fast when feature don't have interdependency. But its weakness is when two features depend on each other, it would put stronger weight on those features and hence will be biased. Also naive bayes can not optimize as well as logistic regression. Since the current data has features independent of each other, naive byes can be used.
-# 
-# Model Training and Prediction results:
-# 
-# Model: Logistic Regression
-# 
-# Training Size: 100  
-# Training Time(s): 0.004  
-# Training Prediction Time(s): 0.000    
-# Training F1: 0.910
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.708
-# 
-# Training Size: 200  
-# Training Time(s): 0.003  
-# Training Prediction Time(s): 0.001    
-# Training F1: 0.842
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.788
-# 
-# Training Size: 300  
-# Training Time(s): 0.007  
-# Training Prediction Time(s): 0.000    
-# Training F1: 0.843
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.782
-# 
-# Model: Support Vector Machine
-# 
-# Training Size: 100  
-# Training Time(s): 0.003  
-# Training Prediction Time(s): 0.001    
-# Training F1: 0.877
-# Testing Prediction Time(s): 0.001  
-# Testing F1: 0.774
-# 
-# Training Size: 200  
-# Training Time(s): 0.005  
-# Training Prediction Time(s): 0.003    
-# Training F1: 0.868
-# Testing Prediction Time(s): 0.001  
-# Testing F1: 0.781
-# 
-# Training Size: 300  
-# Training Time(s): 0.010  
-# Training Prediction Time(s): 0.007    
-# Training F1: 0.876
-# Testing Prediction Time(s): 0.002  
-# Testing F1: 0.784
-# 
-# Model: Gaussian Naive Bayes
-# 
-# Training Size: 100  
-# Training Time(s): 0.000  
-# Training Prediction Time(s): 0.001    
-# Training F1: 0.846
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.803
-# 
-# Training Size: 200  
-# Training Time(s): 0.001  
-# Training Prediction Time(s): 0.000    
-# Training F1: 0.840
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.724
-# 
-# Training Size: 300  
-# Training Time(s): 0.001  
-# Training Prediction Time(s): 0.001    
-# Training F1: 0.804
-# Testing Prediction Time(s): 0.000  
-# Testing F1: 0.763
-
 # In[28]:
 
 # Train a model
@@ -321,9 +237,3 @@ train_f1_score = predict_labels(clf, X_train, y_train)
 print "F1 score for training set: {}".format(train_f1_score)
 print "F1 score for test set: {}".format(predict_labels(clf, X_test, y_test))
 
-
-# ** Answer ** Based on the results I choose support vector machine as the model for prediction. After testing logistic regression and Gaussian naive bayes, it seems support vector machine has the best F1 score with reasonably low training and prediction time compared to other algorithms.
-# 
-# Support vector machine maps features as points in space and tries to separate different classes of points as far apart as possible and then as a new point is given it makes prediction of which group the point belongs to based on which group would be mapped closest to the point.
-# 
-# Using grid search the final F1 score of the model with training data is 0.876 and with test data is 0.787
