@@ -14,14 +14,14 @@
 # 
 # _To execute a code cell, click inside it and press **Shift+Enter**._
 
-# In[1]:
+# In[18]:
 
 # Import libraries
 import numpy as np
 import pandas as pd
 
 
-# In[2]:
+# In[19]:
 
 # Read student data
 student_data = pd.read_csv("student-data.csv")
@@ -38,7 +38,7 @@ print "Student data read successfully!"
 # 
 # _Use the code block below to compute these values. Instructions/steps are marked using **TODO**s._
 
-# In[3]:
+# In[20]:
 
 # TODO: Compute desired values - replace each '?' with an appropriate expression/function call
 n_students = len(student_data)
@@ -62,7 +62,7 @@ print "Graduation rate of the class: {:.2f}%".format(grad_rate)
 # Let's first separate our data into feature and target columns, and see if any features are non-numeric.<br/>
 # **Note**: For this dataset, the last column (`'passed'`) is the target or label we are trying to predict.
 
-# In[4]:
+# In[21]:
 
 # Extract feature (X) and target (y) columns
 feature_cols = list(student_data.columns[:-1])  # all columns but last are features
@@ -84,7 +84,7 @@ print X_all.head()  # print the first 5 rows
 # 
 # These generated columns are sometimes called _dummy variables_, and we will use the [`pandas.get_dummies()`](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.get_dummies.html?highlight=get_dummies#pandas.get_dummies) function to perform this transformation.
 
-# In[5]:
+# In[22]:
 
 # Preprocess feature columns
 def preprocess_features(X):
@@ -113,7 +113,7 @@ print "Processed feature columns ({}):-\n{}".format(len(X_all.columns), list(X_a
 # 
 # So far, we have converted all _categorical_ features into numeric values. In this next step, we split the data (both features and corresponding labels) into training and test sets.
 
-# In[6]:
+# In[23]:
 
 # First, decide how many training vs test samples you want
 num_all = student_data.shape[0]  # same as len(student_data)
@@ -140,7 +140,7 @@ print "Test set: {} samples".format(X_test.shape[0])
 # 
 # Note: You need to produce 3 such tables - one for each model.
 
-# In[7]:
+# In[24]:
 
 # Train a model
 import time
@@ -161,7 +161,7 @@ train_classifier(clf, X_train, y_train)  # note: using entire training set here
 #print clf  # you can inspect the learned model by printing it
 
 
-# In[8]:
+# In[25]:
 
 # Predict on training set and compute F1 score
 from sklearn.metrics import f1_score
@@ -178,13 +178,13 @@ train_f1_score = predict_labels(clf, X_train, y_train)
 print "F1 score for training set: {}".format(train_f1_score)
 
 
-# In[9]:
+# In[26]:
 
 # Predict on test data
 print "F1 score for test set: {}".format(predict_labels(clf, X_test, y_test))
 
 
-# In[10]:
+# In[27]:
 
 # Train and predict using different training set sizes
 def train_predict(clf, X_train, y_train, X_test, y_test):
@@ -201,7 +201,7 @@ train_predict(clf, X_train, y_train, X_test, y_test)
 # Note: Keep the test set constant
 
 
-# In[11]:
+# In[28]:
 
 # TODO: Train and predict using two other models
 
@@ -225,13 +225,16 @@ train_predict(clf, X_train, y_train, X_test, y_test)
 # - Fine-tune the model. Use Gridsearch with at least one important parameter tuned and with at least 3 settings. Use the entire training set for this.
 # - What is the model's final F<sub>1</sub> score?
 
-# In[12]:
+# In[40]:
 
 # TODO: Fine-tune your model and report the best F1 score
 from sklearn import grid_search
+from sklearn.metrics import f1_score, make_scorer
+from sklearn.svm import SVC
 parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-svr = svm.SVC()
-clf = grid_search.GridSearchCV(svr, parameters)
+svr = SVC()
+f1_scorer = make_scorer(f1_score, pos_label='yes')
+clf = grid_search.GridSearchCV(svr, param_grid=parameters, scoring=f1_scorer)
 train_classifier(clf, X_train, y_train)
 train_f1_score = predict_labels(clf, X_train, y_train)
 print "F1 score for training set: {}".format(train_f1_score)
