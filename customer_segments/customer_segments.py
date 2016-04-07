@@ -31,11 +31,11 @@ print data.head()  # print the first 5 rows
 
 # **1)** In this section you will be using PCA and ICA to start to understand the structure of the data. Before doing any computations, what do you think will show up in your computations? List one or two ideas for what might show up as the first PCA dimensions, or what type of vectors will show up as ICA dimensions.
 
-# Answer: First PCA dimension would be the feature with maximum variance. ICA dimensions will be independent vectors without any correlation with each other.
+# Answer: First PCA dimension would be the feature with maximum variance. Looking at the first 5 rows frozen seems to have highest variance, making it the possible first PCA dimension. ICA dimensions will be independent vectors without any correlation with each other. Each ICA dimension would be a customer who buys one particular type of item.
 
 # ###PCA
 
-# In[2]:
+# In[4]:
 
 # TODO: Apply PCA with the same number of dimensions as variables in the dataset
 from sklearn.decomposition import PCA
@@ -45,6 +45,9 @@ pca.fit(data)
 # Print the components and the amount of variance in the data contained in each dimension
 print pca.components_
 print pca.explained_variance_ratio_
+print pd.DataFrame(pca.components_, columns=data.columns)
+x = np.arange(6)
+plt.plot(x, 1 - np.cumsum(pca.explained_variance_ratio_), '-o')
 
 
 # **2)** How quickly does the variance drop off by dimension? If you were to use PCA on this dataset, how many dimensions would you choose for your analysis? Why?
@@ -53,25 +56,26 @@ print pca.explained_variance_ratio_
 
 # **3)** What do the dimensions seem to represent? How can you use this information?
 
-# Answer: The first PCA component seems to coorelate with Frozen and the second PCA component seems to correlate with Detergents_Paper. The two major PCA components can be used to group customers more easily by observing their spending habits in these two categories.
+# Answer: The first PCA component seems to coorelate with Detergents_Paper and the second PCA component seems to correlate with Grocery, milk and Detergents_Paper. The two major PCA components can be used to group customers more easily by observing their spending habits in these two categories.
 
 # ###ICA
 
-# In[3]:
+# In[6]:
 
 # TODO: Fit an ICA model to the data
 # Note: Adjust the data to have center at the origin first!
 from sklearn.decomposition import FastICA
-ica = FastICA()
+ica = FastICA(n_components = data.shape[1], random_state = 10)
 ica.fit_transform(data)
 
 # Print the independent components
 print ica.components_
+print pd.DataFrame(ica.components_, columns=data.columns).plot(kind='bar', figsize=(12,6))
 
 
 # **4)** For each vector in the ICA decomposition, write a sentence or two explaining what sort of object or property it corresponds to. What could these components be used for?
 
-# Answer: Each vector in ICA decomposition represents a type of customer. The first vector represents a customer that mostly buys fresh, and then detergents, delicatessen, milk, possibly a farmer's market store shopper. The second vector represents a customer that mostly buys fresh and detergents, possibly shopping at a small grocery store. The third vector represents a shopper who mostly buys frozen and then deli and grocery, possibly a deli/grocery store shopper. The fourth vector represents a customer that mostly buys milk, possibly a convinience store shopper. The fifth vector is a shopper that mostly buys frozen, grocery and some fresh and milk, possibly a chain grocery store shopper. The sixth vector represents a shopper that mostly buys deli and some fresh and detergents, possibly a small deli/grocery store shopper. These components can be used to group shoppers into different categories.
+# Answer: Each vector in ICA decomposition represents a type of customer. The first vector represents a customer that mostly buys fresh, probably a farmer's market shopper. The second vector represents a customer that mostly buys milk, probably a convinience store shopper. The third vector represents a customer that mostly buys grocery and deli, probably a deli store shopper. The fourth vector represents a customer that mostly buys grocery, probably a chain store shopper. The fifth vector represents a customer that mostly buys frozen, probably a supermarket shopper. The sixth vector represents a customer that buys little bit of fresh, grocery and frozen, probably an occasional shopper. These components can be used to group shoppers into different categories.
 
 # ##Clustering
 # 
@@ -81,18 +85,18 @@ print ica.components_
 # 
 # **5)** What are the advantages of using K Means clustering or Gaussian Mixture Models?
 
-# Answer: In K-Means clustering we can pick the number of clusters we want and the algorithm will create exactly that many clusters. So each feature is assigned to exactly one cluster. But in Gaussian Mixture Model, each feature is assigned to one or many clusters with a certain probility. K Means clustering could be thought of as special case of Gaussian Mixed Model clustering, where the probability of a feature being in K clusters is 1 for a particular cluster and 0 for others. GMM is more complex and tends to be slower than K-Means algorithm, because it maintains partial membership information for each data point and it needs to update the estimate for covariance matrix on each iteration. GMM generally tends to be more accurate compared to K-Means algorithm except when K is very high and the feature distribution is non-gaussian. Both K-Means and GMM work well with large number of samples, producing many clusters. K-Meas is useful when smaller number of clusters with even cluster size is preferred, where as GMM is preferred when density estimation is important. In the current dataset since there are two major PCA dimensions, we can expect a good cluster distribution for 2 clusters and since shoppers are chosen at random, gaussian distribution can be assumed. This makes the dataset ideal for K-Means clustering.
+# Answer: In K-Means clustering we can pick the number of clusters we want and the algorithm will create exactly that many clusters. So each feature is assigned to exactly one cluster. But in Gaussian Mixture Model, each feature is assigned to one or many clusters with a certain probility. K Means clustering could be thought of as special case of Gaussian Mixed Model clustering, where the probability of a feature being in K clusters is 1 for a particular cluster and 0 for others. GMM is more complex and tends to be slower than K-Means algorithm, because it maintains partial membership information for each data point and it needs to update the estimate for covariance matrix on each iteration. GMM generally tends to be more accurate compared to K-Means algorithm except when K is very high and the feature distribution is non-gaussian. Both K-Means and GMM work well with large number of samples, producing many clusters. K-Meas is useful when smaller number of clusters with even cluster size is preferred, where as GMM is preferred when density estimation is important. In the current dataset since there are two major PCA dimensions, we can expect a good cluster distribution for 2 clusters and since shoppers are chosen at random, gaussian distribution can be assumed or achieved with a transformation like log transformation. This makes the dataset ideal for K-Means clustering.
 
 # **6)** Below is some starter code to help you visualize some cluster data. The visualization is based on [this demo](http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_digits.html) from the sklearn documentation.
 
-# In[4]:
+# In[7]:
 
 # Import clustering modules
 from sklearn.cluster import KMeans
 from sklearn.mixture import GMM
 
 
-# In[31]:
+# In[8]:
 
 # TODO: First we reduce the data to two dimensions using PCA to capture variation
 pca = PCA(n_components=2)
@@ -100,7 +104,7 @@ reduced_data = pca.fit_transform(data)
 print reduced_data[:10]  # print upto 10 elements
 
 
-# In[32]:
+# In[9]:
 
 # TODO: Implement your clustering algorithm here, and fit it to the reduced data for visualization
 # The visualizer below assumes your clustering object is named 'clusters'
@@ -127,7 +131,7 @@ Z2 = clusters2.predict(np.c_[xx.ravel(), yy.ravel()])
 Z3 = clusters3.predict(np.c_[xx.ravel(), yy.ravel()])
 
 
-# In[33]:
+# In[10]:
 
 # TODO: Find the centroids for KMeans or the cluster means for GMM 
 centroids2 = clusters2.cluster_centers_
@@ -135,11 +139,11 @@ centroids3 = clusters3.cluster_centers_
 print "Centeroids for K-Means with 2 clusters"
 print centroids2
 print "Inverse Transform for K-Means with 2 clusters"
-print pca.inverse_transform(centroids2)
+print pd.DataFrame(pca.inverse_transform(centroids2), columns=data.columns).plot(kind='bar')
 print "Centeroids for K-Means with 3 clusters"
 print centroids3
 print "Inverse Transform for K-Means with 3 clusters"
-print pca.inverse_transform(centroids3)
+print pd.DataFrame(pca.inverse_transform(centroids3), columns=data.columns).plot(kind='bar')
 
 
 # In[29]:
@@ -188,18 +192,18 @@ plt.show()
 
 # **7)** What are the central objects in each cluster? Describe them as customers.
 
-# Answer: The central objects in each cluster represent a type of customer. For example in K-Means clustering with 2 clusters, the left cluster represents customers who shop at farmers market stores and the right cluster represents customers who shop at chain grocery stores. In case of K-Means clustering with 3 clusters the left bottom cluster represents customers who shop at farmer's market stores. The top cluster represents customers who shop at deli grocery stores and the bottom right cluster represents customes who shop at chain grocery stores.
+# Answer: The central objects in each cluster represent a type of customer. In K-Means cluster with 2 clusters, the first cenroid represents a customer that mostly buys fresh, milk and grocery, possibly a chain grocery store shopper. The second centroid represents a customer that mostly buys fresh, possibly a farmer's market shopper. In K-Means cluster with 3 clusters, the first centroid represents a customer that mostly buys fresh, possibly a farmer's market shopper. The second centroid represents a customer that mostly buys grocery, possibly a chain grocery store shopper. The third centroid represents a customer that buys fresh, milk and grocery, possibly a small grocery store shopper.
 
 # ###Conclusions
 # 
 # ** 8)** Which of these techniques did you feel gave you the most insight into the data?
 
-# Answer: K-Means clustering helped divide the customers into 2 major groups. 
+# Answer: K-Means clustering helped divide the customers into 2 major groups. The dataset had quantity of items purchased for fresh, milk, grocery, frozen and deli. Using K-Means clustering with 2 clusters, we were able to divide the customers into two broad categories, farmer's market shopper and grocery store shopper. We could have used Gaussian Mixture Model to improve accuracy of clustering. But GMM is more complex and requires more computing resource. Since using PCA, we were able to find out that there are two major dimensions referring to two main types of customers, we were able to decide on using K-Means clustering with only 2 clusters. For such a small number of clusters, the complexity and overhead of GMM is unnecessary.
 
 # **9)** How would you use that technique to help the company design new experiments?
 
-# Answer: Since K-Means clustering helped identify the 2 major types of customers, I would use this information to design experiments for the company where 2 different stores could be arranged differently, with one having fresh, milk and deli at the front and frozen, detergents and grocery at the back and the other having frozen, detergents and grocery at the front and fresh, milk and deli at the back. There can also be other stores with a different arrangement of items. The results of the experiment would help suggest the most optimal way to arrange items at stores to generate most revenue. Also this will help decide what type of items should be sold more to what type of stores.
+# Answer: Since K-Means clustering helped identify the 2 major types of customers, I would use this information to design experiments for the company where 2 different stores could be arranged differently, with one having a mix of fresh, milk and grocery at the front and frozen, detergents and deli at the back and the other having just fresh at the front and milk, grocery, detergents and deli at the back. The results of the experiment would help suggest the most optimal way to arrange items at stores to generate most revenue. Also this will help decide what type of items should be sold more to what type of stores.
 
 # **10)** How would you use that data to help you predict future customer needs?
 
-# Answer: Knowing different types of customers and their spending habbits, I would use linear regression to predict their future demand for specific types of items.
+# Answer: Knowing different types of customers and their spending habbits, I would use linear regression to predict their future demand for specific types of items. Using K-Means clustering on the given dataset we know that there are mainly 2 types of customers, farmer's market shoppers and grocery store shoppers. We can measure how many fresh, milk, grocery, detergents and deli is bought by each type of customers over a period of time say 1 year and then the quantity of each type of items bought by each different types of customers can be used as features in linear regression to predict items needed to be produced for next year. 
