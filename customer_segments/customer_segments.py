@@ -11,7 +11,7 @@
 # - Answer each question in the space provided by editing the blocks labeled "Answer:".
 # - When you are done, submit the completed notebook (.ipynb) with all code blocks executed, as well as a .pdf version (File > Download as).
 
-# In[1]:
+# In[2]:
 
 # Import libraries: NumPy, pandas, matplotlib
 import numpy as np
@@ -25,17 +25,19 @@ get_ipython().magic(u'matplotlib inline')
 data = pd.read_csv("wholesale-customers.csv")
 print "Dataset has {} rows, {} columns".format(*data.shape)
 print data.head()  # print the first 5 rows
+print "Variance in dataset"
+print data.var()
 
 
 # ##Feature Transformation
 
 # **1)** In this section you will be using PCA and ICA to start to understand the structure of the data. Before doing any computations, what do you think will show up in your computations? List one or two ideas for what might show up as the first PCA dimensions, or what type of vectors will show up as ICA dimensions.
 
-# Answer: First PCA dimension would be the feature with maximum variance. Looking at the first 5 rows frozen seems to have highest variance, making it the possible first PCA dimension. ICA dimensions will be independent vectors without any correlation with each other. Each ICA dimension would be a customer who buys one particular type of item.
+# Answer: First PCA dimension would be the feature with maximum variance. Fresh has highest variance, making it the first PCA dimension. ICA dimensions will be independent vectors without any correlation with each other. Each ICA dimension would be a customer who buys a particular mix of items.
 
 # ###PCA
 
-# In[4]:
+# In[3]:
 
 # TODO: Apply PCA with the same number of dimensions as variables in the dataset
 from sklearn.decomposition import PCA
@@ -60,7 +62,7 @@ plt.plot(x, 1 - np.cumsum(pca.explained_variance_ratio_), '-o')
 
 # ###ICA
 
-# In[6]:
+# In[4]:
 
 # TODO: Fit an ICA model to the data
 # Note: Adjust the data to have center at the origin first!
@@ -75,7 +77,7 @@ print pd.DataFrame(ica.components_, columns=data.columns).plot(kind='bar', figsi
 
 # **4)** For each vector in the ICA decomposition, write a sentence or two explaining what sort of object or property it corresponds to. What could these components be used for?
 
-# Answer: Each vector in ICA decomposition represents a type of customer. The first vector represents a customer that mostly buys fresh, probably a farmer's market shopper. The second vector represents a customer that mostly buys milk, probably a convinience store shopper. The third vector represents a customer that mostly buys grocery and deli, probably a deli store shopper. The fourth vector represents a customer that mostly buys grocery, probably a chain store shopper. The fifth vector represents a customer that mostly buys frozen, probably a supermarket shopper. The sixth vector represents a customer that buys little bit of fresh, grocery and frozen, probably an occasional shopper. These components can be used to group shoppers into different categories.
+# Answer: Each vector in ICA decomposition represents a type of customer. The first vector represents a customer that mostly buys fresh, probably a farmer's market shopper. The second vector represents a customer that mostly buys grocery, probably a chain grocery store shopper. The third vector represents a customer that mostly buys milk, grocery and deli, probably a deli store shopper. The fourth vector represents a customer that mostly buys grocery and detergents probably a chain store shopper. The fifth vector represents a customer that mostly buys frozen, probably a supermarket shopper. The sixth vector represents a customer that mostly buys Deli, probably a deli store shopper. These components can be used to group shoppers into different categories.
 
 # ##Clustering
 # 
