@@ -11,7 +11,7 @@
 # - Answer each question in the space provided by editing the blocks labeled "Answer:".
 # - When you are done, submit the completed notebook (.ipynb) with all code blocks executed, as well as a .pdf version (File > Download as).
 
-# In[2]:
+# In[1]:
 
 # Import libraries: NumPy, pandas, matplotlib
 import numpy as np
@@ -37,7 +37,7 @@ print data.var()
 
 # ###PCA
 
-# In[3]:
+# In[2]:
 
 # TODO: Apply PCA with the same number of dimensions as variables in the dataset
 from sklearn.decomposition import PCA
@@ -58,11 +58,11 @@ plt.plot(x, 1 - np.cumsum(pca.explained_variance_ratio_), '-o')
 
 # **3)** What do the dimensions seem to represent? How can you use this information?
 
-# Answer: The first PCA component seems to coorelate with Detergents_Paper and the second PCA component seems to correlate with Grocery, milk and Detergents_Paper. The two major PCA components can be used to group customers more easily by observing their spending habits in these two categories.
+# Answer: The first PCA component seems to coorelate with Fresh and the second PCA component seems to correlate with Grocery, milk and Detergents_Paper. The two major PCA components can be used to group customers more easily by observing their spending habits in these two categories.
 
 # ###ICA
 
-# In[4]:
+# In[3]:
 
 # TODO: Fit an ICA model to the data
 # Note: Adjust the data to have center at the origin first!
@@ -91,14 +91,14 @@ print pd.DataFrame(ica.components_, columns=data.columns).plot(kind='bar', figsi
 
 # **6)** Below is some starter code to help you visualize some cluster data. The visualization is based on [this demo](http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_digits.html) from the sklearn documentation.
 
-# In[7]:
+# In[4]:
 
 # Import clustering modules
 from sklearn.cluster import KMeans
 from sklearn.mixture import GMM
 
 
-# In[8]:
+# In[5]:
 
 # TODO: First we reduce the data to two dimensions using PCA to capture variation
 pca = PCA(n_components=2)
@@ -106,7 +106,7 @@ reduced_data = pca.fit_transform(data)
 print reduced_data[:10]  # print upto 10 elements
 
 
-# In[9]:
+# In[6]:
 
 # TODO: Implement your clustering algorithm here, and fit it to the reduced data for visualization
 # The visualizer below assumes your clustering object is named 'clusters'
@@ -119,7 +119,7 @@ print clusters2
 print clusters3
 
 
-# In[27]:
+# In[7]:
 
 # Plot the decision boundary by building a mesh grid to populate a graph.
 x_min, x_max = reduced_data[:, 0].min() - 1, reduced_data[:, 0].max() + 1
@@ -133,7 +133,7 @@ Z2 = clusters2.predict(np.c_[xx.ravel(), yy.ravel()])
 Z3 = clusters3.predict(np.c_[xx.ravel(), yy.ravel()])
 
 
-# In[10]:
+# In[8]:
 
 # TODO: Find the centroids for KMeans or the cluster means for GMM 
 centroids2 = clusters2.cluster_centers_
@@ -148,7 +148,7 @@ print "Inverse Transform for K-Means with 3 clusters"
 print pd.DataFrame(pca.inverse_transform(centroids3), columns=data.columns).plot(kind='bar')
 
 
-# In[29]:
+# In[10]:
 
 # Put the result into a color plot
 Z2 = Z2.reshape(xx.shape)
@@ -160,7 +160,7 @@ plt.imshow(Z2, interpolation='nearest',
            aspect='auto', origin='lower')
 
 plt.plot(reduced_data[:, 0], reduced_data[:, 1], 'k.', markersize=2)
-plt.scatter(centroids[:, 0], centroids[:, 1],
+plt.scatter(centroids2[:, 0], centroids2[:, 1],
             marker='x', s=169, linewidths=3,
             color='w', zorder=10)
 plt.title('Clustering on the wholesale grocery dataset (PCA-reduced data)\n'
