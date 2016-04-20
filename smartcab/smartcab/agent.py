@@ -2,6 +2,7 @@ import random
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
+from collections import namedtuple
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -11,26 +12,90 @@ class LearningAgent(Agent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
+        self.last_reward = 0
+        self.last_action = None
+        self.last_state = None
+        self.state = None
+        self.total_reward = 0
+        self.deadline = self.env.get_deadline(self)
+        self.q = {}
+        self.alpha = 0.8
+        self.gamma = 0.2
+        self.actions = ['forward', 'left', 'right', None]
+
+    def get_legal_actions(self, state):
+        legal_actions = ['forward', 'left', 'right', None]
+        if(state.light == 'green'):
+            if(state.oncoming != None):
+                legal_actions = ['forward', 'right', None]
+            if(state.light == 'red'):
+                if(state.oncoming == 'left' or state.left == 'forward'):
+                    legal_actions = [None]
+                else:
+                    legal_actions = ['right', None]
+        return legal_actions
+
+    def get_max_q(self, state):
+        maxQ = 0.0
+        for action in self.get_legal_actions(state):
+            if(self.q.get((state, action)) > maxQ):
+                maxQ = self.q.get((state, action), 0.0)
+        return maxQ
+
+    def get_best_action(self, state):
+        best_action = None
+        maxQ = self.get_max_q(state)
+        legal_actions = self.get_legal_actions(state)
+        for action in legal_actions:
+            if(self.q.get((state, action), 0.0) > maxQ):
+                best_action = action
+            if(self.q.get((state, action), 0.0) == maxQ):
+                if(random.random() > 0.5):
+                    best_action = action
+        return best_action
+
+    def tuple_state(self, state):
+        State = namedtuple("State", ["light", "oncoming", "left", "right", "next_waypoint"])
+        return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], right = state['right'], next_waypoint = self.planner.next_waypoint()) 
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
         # TODO: Prepare for a new trip; reset any variables here, if required
+        self.last_reward = 0
+        self.last_action = None
+        self.last_state = None
+        self.state = None
+        self.total_reward = 0
+        
+    def update_q(self, state, action, next_state, reward):
+        if((state, action) not in self.q):
+            self.q[(state, action)] = 0.0
+        else:
+            self.q[(state, action)] = self.q[(state, action)] + self.alpha * (reward + self.gamma * self.get_max_q(next_state) - self.q[(state, action)])       
 
     def update(self, t):
         # Gather inputs
         self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
-
-        # TODO: Update state
         
+        # TODO: Update state
+        self.state = self.tuple_state(inputs)
+
         # TODO: Select action according to your policy
-        action = None
+        action = self.get_best_action(self.state)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
         # TODO: Learn policy based on state, action, reward
+        if(self.last_reward != None):
+            self.update_q(self.last_state, self.last_action, self.state, self.last_reward)
+        
+        self.last_action = action
+        self.last_state = self.state
+        self.last_reward = reward
+        self.total_reward += reward
 
         print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
 
