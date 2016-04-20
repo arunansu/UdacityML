@@ -4,11 +4,11 @@ from planner import RoutePlanner
 from simulator import Simulator
 from collections import namedtuple
 
-class LearningAgent(Agent):
+class BasicLearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
 
     def __init__(self, env):
-        super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
+        super(BasicLearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
@@ -18,9 +18,6 @@ class LearningAgent(Agent):
         self.state = None
         self.total_reward = 0
         self.deadline = self.env.get_deadline(self)
-        self.q = {}
-        self.alpha = 0.8
-        self.gamma = 0.2
 
     def get_legal_actions(self, state):
         legal_actions = ['forward', 'left', 'right', None]
@@ -34,25 +31,6 @@ class LearningAgent(Agent):
                     legal_actions = ['right', None]
         return legal_actions
 
-    def get_max_q(self, state):
-        maxQ = 0.0
-        for action in self.get_legal_actions(state):
-            if(self.q.get((state, action)) > maxQ):
-                maxQ = self.q.get((state, action), 0.0)
-        return maxQ
-
-    def get_best_action(self, state):
-        best_action = None
-        maxQ = self.get_max_q(state)
-        legal_actions = self.get_legal_actions(state)
-        for action in legal_actions:
-            if(self.q.get((state, action), 0.0) > maxQ):
-                best_action = action
-            if(self.q.get((state, action), 0.0) == maxQ):
-                if(random.random() > 0.5):
-                    best_action = action
-        return best_action
-
     def tuple_state(self, state):
         State = namedtuple("State", ["light", "oncoming", "left", "right", "next_waypoint"])
         return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], right = state['right'], next_waypoint = self.planner.next_waypoint()) 
@@ -65,12 +43,6 @@ class LearningAgent(Agent):
         self.last_state = None
         self.state = None
         self.total_reward = 0
-        
-    def update_q(self, state, action, next_state, reward):
-        if((state, action) not in self.q):
-            self.q[(state, action)] = 0.0
-        else:
-            self.q[(state, action)] = self.q[(state, action)] + self.alpha * (reward + self.gamma * self.get_max_q(next_state) - self.q[(state, action)])       
 
     def update(self, t):
         # Gather inputs
@@ -82,15 +54,13 @@ class LearningAgent(Agent):
         self.state = self.tuple_state(inputs)
 
         # TODO: Select action according to your policy
-        action = self.get_best_action(self.state)
+        legal_actions = self.get_legal_actions(self.state)
+        action = random.choice(legal_actions)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
-        # TODO: Learn policy based on state, action, reward
-        if(self.last_reward != None):
-            self.update_q(self.last_state, self.last_action, self.state, self.last_reward)
-        
+        # TODO: Learn policy based on state, action, reward 
         self.last_action = action
         self.last_state = self.state
         self.last_reward = reward

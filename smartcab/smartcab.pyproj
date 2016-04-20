@@ -33,6 +33,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="smartcab\agent.py" />
+    <Compile Include="smartcab\basic_agent.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="smartcab\environment.py" />
     <Compile Include="smartcab\planner.py" />
     <Compile Include="smartcab\simulator.py" />
