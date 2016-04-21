@@ -18,22 +18,11 @@ class BasicLearningAgent(Agent):
         self.state = None
         self.total_reward = 0
         self.deadline = self.env.get_deadline(self)
-
-    def get_legal_actions(self, state):
-        legal_actions = ['forward', 'left', 'right', None]
-        if(state.light == 'green'):
-            if(state.oncoming != None):
-                legal_actions = ['forward', 'right', None]
-            if(state.light == 'red'):
-                if(state.oncoming == 'left' or state.left == 'forward'):
-                    legal_actions = [None]
-                else:
-                    legal_actions = ['right', None]
-        return legal_actions
+        self.actions = ['forward', 'left', 'right', None]
 
     def tuple_state(self, state):
-        State = namedtuple("State", ["light", "oncoming", "left", "right", "next_waypoint"])
-        return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], right = state['right'], next_waypoint = self.planner.next_waypoint()) 
+        State = namedtuple("State", ["light", "next_waypoint"])
+        return State(light = state['light'], next_waypoint = self.planner.next_waypoint()) 
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -54,8 +43,7 @@ class BasicLearningAgent(Agent):
         self.state = self.tuple_state(inputs)
 
         # TODO: Select action according to your policy
-        legal_actions = self.get_legal_actions(self.state)
-        action = random.choice(legal_actions)
+        action = random.choice(self.actions)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
@@ -66,7 +54,7 @@ class BasicLearningAgent(Agent):
         self.last_reward = reward
         self.total_reward += reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
+        print "BasicLearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, total_reward = {}".format(deadline, inputs, action, reward, self.total_reward)  # [debug]
 
 
 def run():
@@ -74,7 +62,7 @@ def run():
 
     # Set up environment and agent
     e = Environment()  # create environment (also adds some dummy traffic)
-    a = e.create_agent(LearningAgent)  # create agent
+    a = e.create_agent(BasicLearningAgent)  # create agent
     e.set_primary_agent(a, enforce_deadline=False)  # set agent to track
 
     # Now simulate it

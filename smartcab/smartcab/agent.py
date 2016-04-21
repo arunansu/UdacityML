@@ -19,43 +19,33 @@ class LearningAgent(Agent):
         self.total_reward = 0
         self.deadline = self.env.get_deadline(self)
         self.q = {}
-        self.alpha = 0.8
-        self.gamma = 0.2
-
-    def get_legal_actions(self, state):
-        legal_actions = ['forward', 'left', 'right', None]
-        if(state.light == 'green'):
-            if(state.oncoming != None):
-                legal_actions = ['forward', 'right', None]
-            if(state.light == 'red'):
-                if(state.oncoming == 'left' or state.left == 'forward'):
-                    legal_actions = [None]
-                else:
-                    legal_actions = ['right', None]
-        return legal_actions
+        self.alpha = 0.9
+        self.gamma = 0.3
+        self.epsilon = 0.1
+        self.actions = ['forward', 'left', 'right', None]
 
     def get_max_q(self, state):
         maxQ = 0.0
-        for action in self.get_legal_actions(state):
+        for action in self.actions:
             if(self.q.get((state, action)) > maxQ):
                 maxQ = self.q.get((state, action), 0.0)
         return maxQ
 
     def get_best_action(self, state):
-        best_action = None
+        best_action = random.choice(self.actions)
         maxQ = self.get_max_q(state)
-        legal_actions = self.get_legal_actions(state)
-        for action in legal_actions:
-            if(self.q.get((state, action), 0.0) > maxQ):
-                best_action = action
-            if(self.q.get((state, action), 0.0) == maxQ):
-                if(random.random() > 0.5):
+        if(random.random() > self.epsilon):
+            for action in self.actions:
+                if(self.q.get((state, action), 0.0) > maxQ):
                     best_action = action
+                if(self.q.get((state, action), 0.0) == maxQ):
+                    if(random.random() > 0.5):
+                        best_action = action
         return best_action
 
     def tuple_state(self, state):
-        State = namedtuple("State", ["light", "oncoming", "left", "right", "next_waypoint"])
-        return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], right = state['right'], next_waypoint = self.planner.next_waypoint()) 
+        State = namedtuple("State", ["light", "next_waypoint"])
+        return State(light = state['light'], next_waypoint = self.planner.next_waypoint()) 
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -65,7 +55,7 @@ class LearningAgent(Agent):
         self.last_state = None
         self.state = None
         self.total_reward = 0
-        
+
     def update_q(self, state, action, next_state, reward):
         if((state, action) not in self.q):
             self.q[(state, action)] = 0.0
@@ -96,7 +86,7 @@ class LearningAgent(Agent):
         self.last_reward = reward
         self.total_reward += reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
+        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, total_reward = {}".format(deadline, inputs, action, reward, self.total_reward)  # [debug]
 
 
 def run():
