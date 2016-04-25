@@ -21,8 +21,8 @@ class BasicLearningAgent(Agent):
         self.actions = ['forward', 'left', 'right', None]
 
     def tuple_state(self, state):
-        State = namedtuple("State", ["light", "next_waypoint"])
-        return State(light = state['light'], next_waypoint = self.planner.next_waypoint()) 
+        State = namedtuple("State", ["light", "oncoming", "left", "next_waypoint"])
+        return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], next_waypoint = self.planner.next_waypoint()) 
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -54,7 +54,7 @@ class BasicLearningAgent(Agent):
         self.last_reward = reward
         self.total_reward += reward
 
-        print "BasicLearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}, total_reward = {}".format(deadline, inputs, action, reward, self.total_reward)  # [debug]
+        print "BasicLearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
 
 
 def run():
