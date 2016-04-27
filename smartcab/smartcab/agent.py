@@ -19,10 +19,13 @@ class LearningAgent(Agent):
         self.total_reward = 0
         self.deadline = self.env.get_deadline(self)
         self.q = {}
-        self.alpha = 0.9
-        self.gamma = 0.3
+        self.alpha = 0.8
+        self.gamma = 0.2
         self.epsilon = 0.1
         self.actions = ['forward', 'left', 'right', None]
+        self.reached_destination = 0
+        self.penalties = 0
+        self.movements = 0
 
     def get_max_q(self, state):
         maxQ = 0.0
@@ -44,8 +47,8 @@ class LearningAgent(Agent):
         return best_action
 
     def tuple_state(self, state):
-        State = namedtuple("State", ["light", "oncoming", "left", "next_waypoint"])
-        return State(light = state['light'], oncoming = state['oncoming'], left = state['left'], next_waypoint = self.planner.next_waypoint()) 
+        State = namedtuple("State", ["light", "next_waypoint"])
+        return State(light = state['light'], next_waypoint = self.planner.next_waypoint()) 
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -55,6 +58,10 @@ class LearningAgent(Agent):
         self.last_state = None
         self.state = None
         self.total_reward = 0
+        self.alpha -= 0.07
+        self.epsilon /= 1.2
+        if self.alpha < 0.05: self.alpha = 0.05
+        if self.epsilon < 0.01: self.epsilon = 0.01
 
     def update_q(self, state, action, next_state, reward):
         if((state, action) not in self.q):
@@ -76,6 +83,10 @@ class LearningAgent(Agent):
 
         # Execute action and get reward
         reward = self.env.act(self, action)
+    
+        if reward >= 10: self.reached_destination += 1
+        if reward < 0: self.penalties += 1
+        self.movements += 1
 
         # TODO: Learn policy based on state, action, reward
         if(self.last_reward != None):
@@ -86,12 +97,12 @@ class LearningAgent(Agent):
         self.last_reward = reward
         self.total_reward += reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
+        #print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
 
 
 def run():
     """Run the agent for a finite number of trials."""
-
+    num_trials = 100
     # Set up environment and agent
     e = Environment()  # create environment (also adds some dummy traffic)
     a = e.create_agent(LearningAgent)  # create agent
@@ -99,8 +110,9 @@ def run():
 
     # Now simulate it
     sim = Simulator(e, update_delay=1.0)  # reduce update_delay to speed up simulation
-    sim.run(n_trials=10)  # press Esc or close pygame window to quit
+    sim.run(n_trials=num_trials)  # press Esc or close pygame window to quit
 
-
+    print "Agent reached destination: {}% of the time.".format(100. * a.reached_destination / num_trials)
+    print "Agent received negative rewards: {}% of the time.".format(100. * a.penalties / a.movements)
 if __name__ == '__main__':
     run()
