@@ -3,6 +3,7 @@ from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
 from collections import namedtuple
+import pprint
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -25,7 +26,7 @@ class LearningAgent(Agent):
         self.actions = ['forward', 'left', 'right', None]
         self.reached_destination = 0
         self.penalties = 0
-        self.movements = 0
+        self.movements = 0   
 
     def get_max_q(self, state):
         maxQ = 0.0
@@ -97,6 +98,7 @@ class LearningAgent(Agent):
         self.last_reward = reward
         self.total_reward += reward
 
+        #pprint.pprint(self.q)
         #print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
 
 
@@ -114,5 +116,6 @@ def run():
 
     print "Agent reached destination: {}% of the time.".format(100. * a.reached_destination / num_trials)
     print "Agent received negative rewards: {}% of the time.".format(100. * a.penalties / a.movements)
+    pprint.pprint(a.q)
 if __name__ == '__main__':
     run()
