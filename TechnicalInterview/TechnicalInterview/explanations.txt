@@ -8,3 +8,11 @@ If the hash values are same then True or else False is returned
 The code checks for error situations like string having None, empty or t having more characters than s
 The code returns False for all error situations
 
+Question 2
+------------
+Palindrom is initialized as an empty string
+Given string a the code loops through all of its sub strings to check for palindrom
+Once a palindrom is found it checks if its length is greater than the stored palindrom
+If yes it sets the palindrom to new palindrom
+The final value of palindrom is returned
+
