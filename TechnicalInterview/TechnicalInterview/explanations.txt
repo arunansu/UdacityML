@@ -1,0 +1,10 @@
+Question 1
+-----------
+A map called letters is a map of all the letters in alphabet as key and prime numbers as value
+The hash function converts a string to a hash value by adding corresponding prime numbers
+So a string with characters in any order will have same hash value
+The code loops through main string s to strip sub strings of same size as string t to compare their hash values
+If the hash values are same then True or else False is returned
+The code checks for error situations like string having None, empty or t having more characters than s
+The code returns False for all error situations
+
