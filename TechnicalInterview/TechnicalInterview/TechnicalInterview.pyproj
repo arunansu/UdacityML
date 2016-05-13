@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>90657cc2-d0a5-4790-b38b-42da2f649726</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Question2.py</StartupFile>
+    <StartupFile>Question4.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -24,6 +24,15 @@
   <ItemGroup>
     <Compile Include="Question1.py" />
     <Compile Include="Question2.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Question3.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Question4.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Question5.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
