@@ -17,14 +17,18 @@ class Node(object):
         self.left = left
         self.right = right
 
-def populateTree(T, i, root):
-    for column in T[i]:
-        if column == 1 and column < root.value:
-            root.left = Node(column)
-            populateTree(T, column, root.left)
-        elif column == 1 and column > root.value:
-            root.right = Node(column)
-            populateTree(T, column, root.right)
+def populateTree(T,r,root):
+    i = 0
+    for column in T[r]:
+        if column == 1 and i < root.value:
+            root.left = Node(i)
+        elif column == 1 and i > root.value:
+            root.right = Node(i)
+        i += 1
+    if root.left != None:
+        populateTree(T, root.left.value, root.left)
+    if root.right != None:
+        populateTree(T, root.right.value, root.right)
 
 def LCA(root, n1, n2):
     if root.value == None:
@@ -40,4 +44,6 @@ def question4(T, r, n1, n2):
     populateTree(T, r, root)
     return LCA(root, n1, n2)
 
-print question4([[0,1,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[1,0,0,0,1],[0,0,0,0,0]],3,1,4)
+print question4([[0,1,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[1,0,0,0,1],[0,0,0,0,0]],3,1,4)  #3
+print question4([[0,0,0,0,0],[1,0,1,0,0],[0,0,0,0,0],[0,1,0,0,1],[0,0,0,0,0]],3,0,2) #1
+print question4([[0,0,0,0,0],[1,0,0,0,0],[0,1,0,1,0],[0,0,0,0,0],[0,0,1,0,0]],4,0,3) #2

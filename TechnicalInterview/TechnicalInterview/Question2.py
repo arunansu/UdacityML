@@ -2,14 +2,15 @@
 #should look like "question2(a)", and return a string.
 
 def question2(a):
-    palindrom = ""
+    palindrome = ""
     for i in xrange(len(a)):
         for j in xrange(i):
             substring = a[j:i + 1]
             if substring == substring[::-1]:
-                if len(substring) > len(palindrom):
-                    palindrom = substring
-    return palindrom
+                if len(substring) > len(palindrome):
+                    palindrome = substring
+    return palindrome
 
-print question2("abafgdfgfjracecar")
-print question2("abcdefg")
+print question2("abafgdfgfjracecar") #"racecar"
+print question2("abcdefg") #""
+print question2("Anna is taking the kayak to the river") #" kayak " 

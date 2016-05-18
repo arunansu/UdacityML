@@ -24,4 +24,6 @@ ll.next.next = Node(3)
 ll.next.next.next = Node(4)
 ll.next.next.next.next = Node(5)
 
-print question5(ll, 3).data
+print question5(ll, 3).data #Should be 3
+print question5(ll, 4).data #Should be 2
+print question5(ll, 2).data #Should be 4
