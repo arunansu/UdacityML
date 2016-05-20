@@ -5,16 +5,17 @@ The function matchHash takes two maps and returns True if both maps have same ke
 The code loops through the string to strip out sub strings of same size as t and then convers them to map using hash function 
 The two maps are compared using the matchHash function 
 The string s contains an anagram of t if hash of t is matchHash of hash of a substring of s 
-The space and time complexity is O(n^2) where n is length of t
+The time complexity is O(n^2) where n is length of t and space complexity is O(n)
 
 Question 2
 ------------
 palindrome is initialized as an empty string
+if input string is not empty the palindrome is set to first character
 Given string a, the code loops through all of its sub strings to check for palindrome
 Once a palindrome is found it checks if its length is greater than the stored palindrome
 If yes it sets the palindrome to new palindrome
 The final value of palindrome is returned
-The space and time complexity is O(n^2)
+The time complexity is O(n^2) and space complexity is O(n)
 
 Question 3
 -----------
@@ -25,18 +26,22 @@ For each node value that contains list of node and distance touple
 it checks if the edge node is present in min tree and then it appends that to node's edge list
 if not it finds the least distance and appends the corresponding tuple to node's edge list
 finally, mintree becomes the minimum spanning tree 
-The space time complexity is O(n * m) where n is number of nodes and m is number of edges
+The time complexity is O(n * m) where n is number of nodes and m is number of edges
+The Space complexity is also O(n * m)
 
 Question 4
 -----------
 Node class defines properties value as value of node and left and right as its children on left and right respectively
 method populateTree uses recursion to populate the tree as a binary search tree with node value i from matrix T
 method LCA uses recursion to calculate least common ancestor give root node and values n1 and n2
-The space and time complexity is O(n * m) where n is number of nodes and m is maximum value of among all the nodes.
+The time complexity is O(n * m) to populate the tree and O(log(n)) to find least common ancestor in the tree
+where n is number of nodes and m is maximum value of a node
+The space complexity is O(n)
 
 Question 5
 ----------
-The map nodeMap holds all the nodes with key as its index string root index as 0
-The code traverses the linked list till there are no more next nodes saving each node to nodeMap
-The mth node is retrieved from nodeMap using key as last node index - m + 1
-The space time complexity is O(n) where is number of nodes in the linked list
+p1 and p2 are initialized as first and 2nd node respectively
+The code traverses the linked list setting p2 to the next node until the mth node
+After mth node both p1 and p2 are replaced by their next node
+When last node is reached, p1 is the mth node from end
+The time complexity is O(n) where is number of nodes in the linked list space complexity is O(2)

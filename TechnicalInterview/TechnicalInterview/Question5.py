@@ -9,14 +9,15 @@ class Node(object):
     self.next = None
 
 def question5(ll, m):
-    nodeMap = {}
-    i = 0
-    nodeMap[0] = ll
-    while ll.next:
+    i = 2
+    p1 = ll
+    p2 = ll.next
+    while p2.next:
         i += 1
-        ll = ll.next
-        nodeMap[i] = ll
-    return nodeMap[i - m + 1]
+        p2 = p2.next
+        if i > m:
+            p1 = p1.next
+    return p1
 
 ll = Node(1)
 ll.next = Node(2)

@@ -3,7 +3,10 @@
 
 def question2(a):
     palindrome = ""
-    for i in xrange(len(a)):
+    len_a = len(a)
+    if len_a > 0:
+        palindrome = a[0]
+    for i in xrange(len_a):
         for j in xrange(i):
             substring = a[j:i + 1]
             if substring == substring[::-1]:

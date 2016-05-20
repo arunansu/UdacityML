@@ -8,7 +8,7 @@ import sys
 def question3(G):
     mintree = {}        
     mindistance = sys.maxint
-    mintuple = (0,0)
+    mintuple = (0, 0)
     for node in G:
         mintree[node] = []
         for edge in G[node]:
