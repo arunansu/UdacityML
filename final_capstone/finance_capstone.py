@@ -85,15 +85,6 @@ from sklearn.cross_validation import train_test_split
 X_train, X_test, Y_train, Y_test = train_test_split(X_imp, Y, test_size=0.3, random_state=42)
 
 
-# In[8]:
-
-#Mean Squared Error to be used to measure model performance
-from sklearn.metrics import mean_squared_error
-def performance_metric(y_true, y_predict):
-    error = mean_squared_error(y_true, y_predict)
-    return error
-
-
 # In[10]:
 
 import numpy as np
