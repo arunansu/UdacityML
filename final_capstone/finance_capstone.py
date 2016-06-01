@@ -49,9 +49,20 @@ print df.head()
 # * inq.last.6mths: Borrowers credit inquiry in last 6 months
 # * delinq.2yrs: Number of times borrower was deliquent in last 2 years
 # * pub.rec: Number of derogatory pulic record borrower has (Bankruptcy, tax liens and judgements etc.)
+# * annualincome: Annual income of borrpwer
 
 # In[2]:
 
+#Print statistics of variables
+print df.describe()
+print df[df['not.fully.paid'] == 1].describe()
+print df[df['not.fully.paid'] == 0].describe()
+
+
+# In[3]:
+
+#Print unique values of purpose
+print pd.Series.unique(df['purpose'])
 # Convert purpose to category
 df['purpose'] = pd.Categorical.from_array(df['purpose']).codes
 print "purpose converted to factors"
@@ -60,42 +71,61 @@ print df.head()
 #extract dependent variable as label
 Y = df['not.fully.paid']
 X = df.drop('not.fully.paid', 1)
+
 print "not.fully.paid as label"
 print Y.head()
 print "not.fully.paid removed from features"
 print X.head()
 
 
-# In[6]:
-
-#Select only important features
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-print "Shape of X: "
-print X.shape
-X_imp = SelectKBest(chi2, k=4).fit_transform(X, Y)
-print "New shape of X"
-print X_imp.shape
-
-
-# In[7]:
-
-#Shuffle and split data into 70% in training and 30% in testing
-from sklearn.cross_validation import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X_imp, Y, test_size=0.3, random_state=42)
-
-
-# In[10]:
+# In[5]:
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import linear_model
-from sklearn import metrics
 
-#Model using Logistic Regression
+from sklearn.ensemble import ExtraTreesClassifier
+
+# Build a forest and compute the feature importances
+forest = ExtraTreesClassifier(n_estimators=250, random_state=0)
+
+forest.fit(X, Y)
+importances = forest.feature_importances_
+std = np.std([tree.feature_importances_ for tree in forest.estimators_], axis=0)
+indices = np.argsort(importances)[::-1]
+
+# Print the feature ranking
+print("Feature ranking:")
+
+for f in range(X.shape[1]):
+    print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+
+# Plot the feature importances of the forest
+plt.figure()
+plt.title("Feature importances")
+plt.bar(range(X.shape[1]), importances[indices], color="r", yerr=std[indices], align="center")
+plt.xticks(range(X.shape[1]), indices)
+plt.xlim([-1, X.shape[1]])
+plt.show()
+
+
+# In[6]:
+
+#Shuffle and split data into 70% in training and 30% in testing
+from sklearn.cross_validation import train_test_split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+
+# In[14]:
+
+#Using Logistic Regression
+from sklearn import metrics
+from sklearn import linear_model
+
+# fit an Extra Trees model to the data
 logreg = linear_model.LogisticRegression()
 logreg.fit(X_train, Y_train)
-print "Model Accuracy:"
+
+print "Model Accuracy using LogisticRegression:"
 print logreg.score(X_train, Y_train)
 
 #Predict using the logistic regression model
@@ -107,6 +137,72 @@ Y_prob = logreg.predict_proba(X_test)
 print metrics.accuracy_score(Y_test, Y_pred)
 #auc score
 print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+
+
+# In[16]:
+
+#Using Support Vector Machine
+from sklearn import metrics
+from sklearn import svm
+
+# fit an Extra Trees model to the data
+clm = svm.SVC(probability=True)
+clm.fit(X_train, Y_train)
+
+print "Model Accuracy using SVM:"
+print clm.score(X_train, Y_train)
+
+#Predict using the logistic regression model
+Y_pred = clm.predict(X_test)
+#probability of the predicted labels
+Y_prob = clm.predict_proba(X_test)
+
+#accuracy score
+print metrics.accuracy_score(Y_test, Y_pred)
+#auc score
+print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+
+
+# In[9]:
+
+from sklearn import metrics
+from sklearn.ensemble import ExtraTreesClassifier
+
+# fit an Extra Trees model to the data
+model = ExtraTreesClassifier()
+model.fit(X_train, Y_train)
+
+print "Model Accuracy using ExtraTreeClassifier:"
+print model.score(X_train, Y_train)
+
+#Predict using the logistic regression model
+Y_pred = model.predict(X_test)
+#probability of the predicted labels
+Y_prob = model.predict_proba(X_test)
+
+#accuracy score
+print metrics.accuracy_score(Y_test, Y_pred)
+#auc score
+print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+
+
+# In[11]:
+
+from sklearn.metrics import roc_curve, auc
+
+false_positive_rate, true_positive_rate, thresholds = roc_curve(Y_test, Y_pred)
+roc_auc = auc(false_positive_rate, true_positive_rate)
+
+plt.title('ROC Curve')
+plt.plot(false_positive_rate, true_positive_rate, 'b',
+label='AUC = %0.2f'% roc_auc)
+plt.legend(loc='lower right')
+plt.plot([0,1],[0,1],'r--')
+plt.xlim([-0.1,1.2])
+plt.ylim([-0.1,1.2])
+plt.ylabel('True Positive Rate')
+plt.xlabel('False Positive Rate')
+plt.show()
 
 
 # #### Conclusion
