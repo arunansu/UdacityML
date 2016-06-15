@@ -57,9 +57,25 @@ print df.head()
 print df.describe()
 print df[df['not.fully.paid'] == 1].describe()
 print df[df['not.fully.paid'] == 0].describe()
+print "Number of loans that have 70% credit utilization and defaulted: "
+print len(df[(df['revol.util'] > 70.00) & (df['not.fully.paid'] == 0)])
 
 
 # In[3]:
+
+#plot correlation between each feature
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.style.use('ggplot')
+from pandas.tools.plotting import scatter_matrix
+scatter_matrix(df, alpha=0.2, figsize=(6, 6), diagonal='kde')
+plt.show()
+
+
+# In[4]:
+
+from sklearn import preprocessing
+from sklearn.preprocessing import OneHotEncoder
 
 #Print unique values of purpose
 print pd.Series.unique(df['purpose'])
@@ -70,12 +86,23 @@ print df.head()
 
 #extract dependent variable as label
 Y = df['not.fully.paid']
+#Drop dependent variable and categorical variable
 X = df.drop('not.fully.paid', 1)
 
 print "not.fully.paid as label"
 print Y.head()
 print "not.fully.paid removed from features"
 print X.head()
+
+#One Hot Encode purpose
+enc = OneHotEncoder()
+df['purpose'] = enc.fit(df['purpose'])
+
+#scale dependent variable
+X = preprocessing.scale(X)
+
+#print first row of X
+print X[0]
 
 
 # In[5]:
@@ -108,14 +135,14 @@ plt.xlim([-1, X.shape[1]])
 plt.show()
 
 
-# In[6]:
+# In[10]:
 
 #Shuffle and split data into 70% in training and 30% in testing
 from sklearn.cross_validation import train_test_split
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 
 
-# In[14]:
+# In[11]:
 
 #Using Logistic Regression
 from sklearn import metrics
@@ -125,21 +152,16 @@ from sklearn import linear_model
 logreg = linear_model.LogisticRegression()
 logreg.fit(X_train, Y_train)
 
-print "Model Accuracy using LogisticRegression:"
-print logreg.score(X_train, Y_train)
+print "LogisticRegression accuracy in training set: {0}".format(logreg.score(X_train, Y_train))
 
 #Predict using the logistic regression model
 Y_pred = logreg.predict(X_test)
-#probability of the predicted labels
-Y_prob = logreg.predict_proba(X_test)
+print "LogisticRegression accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
 
-#accuracy score
-print metrics.accuracy_score(Y_test, Y_pred)
-#auc score
-print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+print "Logistic Regression F1 Score: {0}".format(metrics.f1_score(Y_test, Y_pred))
 
 
-# In[16]:
+# In[12]:
 
 #Using Support Vector Machine
 from sklearn import metrics
@@ -149,21 +171,18 @@ from sklearn import svm
 clm = svm.SVC(probability=True)
 clm.fit(X_train, Y_train)
 
-print "Model Accuracy using SVM:"
-print clm.score(X_train, Y_train)
+print "SVM accuracy in training set: {0}".format(clm.score(X_train, Y_train))
 
 #Predict using the logistic regression model
 Y_pred = clm.predict(X_test)
-#probability of the predicted labels
-Y_prob = clm.predict_proba(X_test)
 
 #accuracy score
-print metrics.accuracy_score(Y_test, Y_pred)
+print "SVM accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
 #auc score
-print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+print "SVM F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
 
 
-# In[9]:
+# In[13]:
 
 from sklearn import metrics
 from sklearn.ensemble import ExtraTreesClassifier
@@ -172,18 +191,13 @@ from sklearn.ensemble import ExtraTreesClassifier
 model = ExtraTreesClassifier()
 model.fit(X_train, Y_train)
 
-print "Model Accuracy using ExtraTreeClassifier:"
-print model.score(X_train, Y_train)
+print "ExtraTreeClassifier accuracy in training set: {0}".format(model.score(X_train, Y_train))
 
 #Predict using the logistic regression model
 Y_pred = model.predict(X_test)
-#probability of the predicted labels
-Y_prob = model.predict_proba(X_test)
 
-#accuracy score
-print metrics.accuracy_score(Y_test, Y_pred)
-#auc score
-print metrics.roc_auc_score(Y_test, Y_prob[:,1])
+print "ExtraTreeClassifier accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+print "ExtraTreeClassifier F1 score in testing set: {0}".format(metrics.roc_auc_score(Y_test, Y_pred))
 
 
 # In[11]:
