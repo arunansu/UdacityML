@@ -17,7 +17,7 @@
 # 
 # The file LoansImputed.csv contains complete loan data for all loans issued through the time period stated. 
 
-# In[1]:
+# In[22]:
 
 #Import Libraries
 import pandas as pd
@@ -26,6 +26,7 @@ import pandas as pd
 df = pd.read_csv('LoansImputed.csv')
 #Print top 5 rows
 print df.head()
+print df.columns.values
 
 
 # #### Variables in the dataset
@@ -57,8 +58,10 @@ print df.head()
 print df.describe()
 print df[df['not.fully.paid'] == 1].describe()
 print df[df['not.fully.paid'] == 0].describe()
-print "Number of loans that have 70% credit utilization and defaulted: "
-print len(df[(df['revol.util'] > 70.00) & (df['not.fully.paid'] == 0)])
+print "Number of loans that have 50% credit utilization and defaulted: "
+print len(df[(df['revol.util'] > 50.00) & (df['not.fully.paid'] == 1)])
+print "Number of loans that have 50% credit utilization and not defaulted: "
+print len(df[(df['revol.util'] > 50.00) & (df['not.fully.paid'] == 0)])
 
 
 # In[3]:
@@ -105,7 +108,7 @@ X = preprocessing.scale(X)
 print X[0]
 
 
-# In[5]:
+# In[26]:
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -119,6 +122,10 @@ forest.fit(X, Y)
 importances = forest.feature_importances_
 std = np.std([tree.feature_importances_ for tree in forest.estimators_], axis=0)
 indices = np.argsort(importances)[::-1]
+features = ['credit.policy', 'purpose', 'int.rate', 'installment', 'log.annual.inc', 'dti', 
+            'fico', 'days.with.cr.line', 'revol.bal', 'revol.util', 'inq.last.6mths', 
+            'delinq.2yrs', 'pub.rec', 'annualincome']
+
 
 # Print the feature ranking
 print("Feature ranking:")
@@ -130,74 +137,117 @@ for f in range(X.shape[1]):
 plt.figure()
 plt.title("Feature importances")
 plt.bar(range(X.shape[1]), importances[indices], color="r", yerr=std[indices], align="center")
-plt.xticks(range(X.shape[1]), indices)
+#plt.xticks(range(X.shape[1]), indices)
+plt.xticks(range(X.shape[1]), [features[i] for i in indices])
 plt.xlim([-1, X.shape[1]])
 plt.show()
 
 
-# In[10]:
+# In[6]:
 
 #Shuffle and split data into 70% in training and 30% in testing
 from sklearn.cross_validation import train_test_split
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+print "X_train size = {0}".format(len(X_train))
+print "Y_train size = {0}".format(len(Y_train))
+print "X_test size = {0}".format(len(X_test))
+print "Y_test size = {0}".format(len(Y_test))
 
 
-# In[11]:
+# In[9]:
 
 #Using Logistic Regression
 from sklearn import metrics
 from sklearn import linear_model
+import time
 
 # fit an Extra Trees model to the data
 logreg = linear_model.LogisticRegression()
+startTrain = time.time()
 logreg.fit(X_train, Y_train)
+endTrain = time.time()
 
+print "LogisticRegression training time (secs): {0}".format(endTrain - startTrain)
 print "LogisticRegression accuracy in training set: {0}".format(logreg.score(X_train, Y_train))
 
 #Predict using the logistic regression model
+startTest = time.time()
 Y_pred = logreg.predict(X_test)
-print "LogisticRegression accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+endTest = time.time()
 
+print "LogisticRegression prediction time (secs): {0}".format(endTest - startTest)
+print "LogisticRegression accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
 print "Logistic Regression F1 Score: {0}".format(metrics.f1_score(Y_test, Y_pred))
 
 
-# In[12]:
+# In[11]:
 
 #Using Support Vector Machine
 from sklearn import metrics
 from sklearn import svm
+import time
 
 # fit an Extra Trees model to the data
 clm = svm.SVC(probability=True)
+startTrain = time.time()
 clm.fit(X_train, Y_train)
+endTrain = time.time()
 
+print "SVM training time (secs): {0}".format(endTrain - startTrain)
 print "SVM accuracy in training set: {0}".format(clm.score(X_train, Y_train))
 
 #Predict using the logistic regression model
+startTest = time.time()
 Y_pred = clm.predict(X_test)
+endTest = time.time()
 
+print "SVM prediction time (secs): {0}".format(endTest - startTest)
 #accuracy score
 print "SVM accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
 #auc score
 print "SVM F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
 
 
-# In[13]:
+# In[14]:
 
 from sklearn import metrics
 from sklearn.ensemble import ExtraTreesClassifier
+import time
 
 # fit an Extra Trees model to the data
 model = ExtraTreesClassifier()
+startTrain = time.time()
 model.fit(X_train, Y_train)
+endTrain = time.time()
 
+print "ExtraTreeClassifier training time (secs): {0}".format(endTrain - startTrain)
 print "ExtraTreeClassifier accuracy in training set: {0}".format(model.score(X_train, Y_train))
 
 #Predict using the logistic regression model
+startTest = time.time()
+Y_pred = model.predict(X_test)
+endTest = time.time()
+
+print "ExtraTreeClassifier prediction time (secs): {0}".format(endTest - startTest)
+print "ExtraTreeClassifier accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+print "ExtraTreeClassifier F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
+
+
+# In[16]:
+
+from sklearn import grid_search
+from sklearn.metrics import f1_score, make_scorer
+from sklearn.ensemble import ExtraTreesClassifier
+
+parameters = {'n_estimators': [16, 32]}
+model = ExtraTreesClassifier()
+f1_scorer = make_scorer(f1_score, pos_label='yes')
+clf = grid_search.GridSearchCV(model, param_grid=parameters, scoring=f1_scorer)
+model.fit(X_train, Y_train)
 Y_pred = model.predict(X_test)
 
-print "ExtraTreeClassifier accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
-print "ExtraTreeClassifier F1 score in testing set: {0}".format(metrics.roc_auc_score(Y_test, Y_pred))
+print model.get_params()
+print "F1 score for test set: {}".format(metrics.f1_score(Y_test, Y_pred))
 
 
 # In[11]:
@@ -220,4 +270,9 @@ plt.show()
 
 
 # #### Conclusion
-# Our model has an accuracy of 70%. This model can be used to predict loans that will be at risk. This can be used to decide whether to approve a loan or not and proactive action can be taken on existing loans that are likely to default.
+# The final model has accuracy score of 78% and F1 score 0.53, which is more than the rough estimate of accuracy score 54.59% and F1 score 0.44 
+
+# In[ ]:
+
+
+
