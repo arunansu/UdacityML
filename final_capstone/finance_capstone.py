@@ -17,7 +17,7 @@
 # 
 # The file LoansImputed.csv contains complete loan data for all loans issued through the time period stated. 
 
-# In[22]:
+# In[1]:
 
 #Import Libraries
 import pandas as pd
@@ -75,9 +75,10 @@ scatter_matrix(df, alpha=0.2, figsize=(6, 6), diagonal='kde')
 plt.show()
 
 
-# In[4]:
+# In[6]:
 
 from sklearn import preprocessing
+from scipy.stats import boxcox
 from sklearn.preprocessing import OneHotEncoder
 
 #Print unique values of purpose
@@ -106,9 +107,118 @@ X = preprocessing.scale(X)
 
 #print first row of X
 print X[0]
+print X[0].mean(axis=0)
+print X[0].std(axis=0)
 
 
-# In[26]:
+# In[7]:
+
+#Shuffle and split data into 70% in training and 30% in testing
+from sklearn.cross_validation import train_test_split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+print "X_train size = {0}".format(len(X_train))
+print "Y_train size = {0}".format(len(Y_train))
+print "X_test size = {0}".format(len(X_test))
+print "Y_test size = {0}".format(len(Y_test))
+
+
+# In[8]:
+
+#Using Logistic Regression
+from sklearn import metrics
+from sklearn import linear_model
+import time
+
+# fit an Extra Trees model to the data
+logreg = linear_model.LogisticRegression()
+startTrain = time.time()
+logreg.fit(X_train, Y_train)
+endTrain = time.time()
+
+print "LogisticRegression training time (secs): {0}".format(endTrain - startTrain)
+print "LogisticRegression accuracy in training set: {0}".format(logreg.score(X_train, Y_train))
+
+#Predict using the logistic regression model
+startTest = time.time()
+Y_pred = logreg.predict(X_test)
+endTest = time.time()
+
+print "LogisticRegression prediction time (secs): {0}".format(endTest - startTest)
+print "LogisticRegression accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+print "Logistic Regression F1 Score: {0}".format(metrics.f1_score(Y_test, Y_pred))
+
+
+# In[9]:
+
+#Using Support Vector Machine
+from sklearn import metrics
+from sklearn import svm
+import time
+
+# fit an Extra Trees model to the data
+clm = svm.SVC(probability=True)
+startTrain = time.time()
+clm.fit(X_train, Y_train)
+endTrain = time.time()
+
+print "SVM training time (secs): {0}".format(endTrain - startTrain)
+print "SVM accuracy in training set: {0}".format(clm.score(X_train, Y_train))
+
+#Predict using the logistic regression model
+startTest = time.time()
+Y_pred = clm.predict(X_test)
+endTest = time.time()
+
+print "SVM prediction time (secs): {0}".format(endTest - startTest)
+#accuracy score
+print "SVM accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+#auc score
+print "SVM F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
+
+
+# In[10]:
+
+from sklearn import metrics
+from sklearn.ensemble import ExtraTreesClassifier
+import time
+
+# fit an Extra Trees model to the data
+model = ExtraTreesClassifier()
+startTrain = time.time()
+model.fit(X_train, Y_train)
+endTrain = time.time()
+
+print "ExtraTreeClassifier training time (secs): {0}".format(endTrain - startTrain)
+print "ExtraTreeClassifier accuracy in training set: {0}".format(model.score(X_train, Y_train))
+
+#Predict using the logistic regression model
+startTest = time.time()
+Y_pred = model.predict(X_test)
+endTest = time.time()
+
+print "ExtraTreeClassifier prediction time (secs): {0}".format(endTest - startTest)
+print "ExtraTreeClassifier accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
+print "ExtraTreeClassifier F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
+
+
+# In[14]:
+
+from sklearn import grid_search
+from sklearn.metrics import f1_score, make_scorer
+from sklearn.ensemble import ExtraTreesClassifier
+
+parameters = {'n_estimators': [1, 32]}
+model = ExtraTreesClassifier()
+f1_scorer = make_scorer(f1_score, pos_label='yes')
+clf = grid_search.GridSearchCV(model, param_grid=parameters, scoring=f1_scorer)
+model.fit(X_train, Y_train)
+Y_pred = model.predict(X_test)
+
+print model.get_params()
+print "F1 score for test set: {}".format(metrics.f1_score(Y_test, Y_pred))
+
+
+# In[12]:
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -141,113 +251,6 @@ plt.bar(range(X.shape[1]), importances[indices], color="r", yerr=std[indices], a
 plt.xticks(range(X.shape[1]), [features[i] for i in indices])
 plt.xlim([-1, X.shape[1]])
 plt.show()
-
-
-# In[6]:
-
-#Shuffle and split data into 70% in training and 30% in testing
-from sklearn.cross_validation import train_test_split
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
-print "X_train size = {0}".format(len(X_train))
-print "Y_train size = {0}".format(len(Y_train))
-print "X_test size = {0}".format(len(X_test))
-print "Y_test size = {0}".format(len(Y_test))
-
-
-# In[9]:
-
-#Using Logistic Regression
-from sklearn import metrics
-from sklearn import linear_model
-import time
-
-# fit an Extra Trees model to the data
-logreg = linear_model.LogisticRegression()
-startTrain = time.time()
-logreg.fit(X_train, Y_train)
-endTrain = time.time()
-
-print "LogisticRegression training time (secs): {0}".format(endTrain - startTrain)
-print "LogisticRegression accuracy in training set: {0}".format(logreg.score(X_train, Y_train))
-
-#Predict using the logistic regression model
-startTest = time.time()
-Y_pred = logreg.predict(X_test)
-endTest = time.time()
-
-print "LogisticRegression prediction time (secs): {0}".format(endTest - startTest)
-print "LogisticRegression accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
-print "Logistic Regression F1 Score: {0}".format(metrics.f1_score(Y_test, Y_pred))
-
-
-# In[11]:
-
-#Using Support Vector Machine
-from sklearn import metrics
-from sklearn import svm
-import time
-
-# fit an Extra Trees model to the data
-clm = svm.SVC(probability=True)
-startTrain = time.time()
-clm.fit(X_train, Y_train)
-endTrain = time.time()
-
-print "SVM training time (secs): {0}".format(endTrain - startTrain)
-print "SVM accuracy in training set: {0}".format(clm.score(X_train, Y_train))
-
-#Predict using the logistic regression model
-startTest = time.time()
-Y_pred = clm.predict(X_test)
-endTest = time.time()
-
-print "SVM prediction time (secs): {0}".format(endTest - startTest)
-#accuracy score
-print "SVM accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
-#auc score
-print "SVM F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
-
-
-# In[14]:
-
-from sklearn import metrics
-from sklearn.ensemble import ExtraTreesClassifier
-import time
-
-# fit an Extra Trees model to the data
-model = ExtraTreesClassifier()
-startTrain = time.time()
-model.fit(X_train, Y_train)
-endTrain = time.time()
-
-print "ExtraTreeClassifier training time (secs): {0}".format(endTrain - startTrain)
-print "ExtraTreeClassifier accuracy in training set: {0}".format(model.score(X_train, Y_train))
-
-#Predict using the logistic regression model
-startTest = time.time()
-Y_pred = model.predict(X_test)
-endTest = time.time()
-
-print "ExtraTreeClassifier prediction time (secs): {0}".format(endTest - startTest)
-print "ExtraTreeClassifier accuracy in testing set: {0}".format(metrics.accuracy_score(Y_test, Y_pred))
-print "ExtraTreeClassifier F1 score in testing set: {0}".format(metrics.f1_score(Y_test, Y_pred))
-
-
-# In[16]:
-
-from sklearn import grid_search
-from sklearn.metrics import f1_score, make_scorer
-from sklearn.ensemble import ExtraTreesClassifier
-
-parameters = {'n_estimators': [16, 32]}
-model = ExtraTreesClassifier()
-f1_scorer = make_scorer(f1_score, pos_label='yes')
-clf = grid_search.GridSearchCV(model, param_grid=parameters, scoring=f1_scorer)
-model.fit(X_train, Y_train)
-Y_pred = model.predict(X_test)
-
-print model.get_params()
-print "F1 score for test set: {}".format(metrics.f1_score(Y_test, Y_pred))
 
 
 # In[11]:
